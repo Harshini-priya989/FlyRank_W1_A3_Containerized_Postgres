@@ -61,3 +61,36 @@ def get_task(task_id: int) -> dict[str, Any] | None:
             cur.execute("SELECT id, title, done FROM tasks WHERE id = %s", (task_id,))
             row = cur.fetchone()
             return None if row is None else dict(id=row[0], title=row[1], done=row[2])
+
+
+def create_task(title: str, done: bool = False) -> dict[str, Any]:
+    with connect_with_retry() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO tasks (title, done) VALUES (%s, %s) RETURNING id, title, done",
+                (title, done),
+            )
+            row = cur.fetchone()
+        conn.commit()
+        return dict(id=row[0], title=row[1], done=row[2])
+
+
+def update_task(task_id: int, title: str, done: bool) -> dict[str, Any] | None:
+    with connect_with_retry() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "UPDATE tasks SET title = %s, done = %s WHERE id = %s RETURNING id, title, done",
+                (title, done, task_id),
+            )
+            row = cur.fetchone()
+        conn.commit()
+        return None if row is None else dict(id=row[0], title=row[1], done=row[2])
+
+
+def delete_task(task_id: int) -> bool:
+    with connect_with_retry() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM tasks WHERE id = %s", (task_id,))
+            deleted = cur.rowcount == 1
+        conn.commit()
+        return deleted

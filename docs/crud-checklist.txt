@@ -1,0 +1,8 @@
+Stage 3 checkpoint
+
+1. POST /tasks with {"title":"Docker task"} -> 201
+2. GET /tasks -> task is present
+3. PUT /tasks/{id} with {"title":"Docker task done","done":true} -> 200
+4. GET /tasks/{id} -> updated task
+5. DELETE /tasks/{id} -> 204
+6. GET /tasks/{id} -> 404
