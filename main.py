@@ -1,7 +1,9 @@
 import sqlite3
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 app = FastAPI(title="Task API", version="1.0")
@@ -48,8 +50,20 @@ def startup():
     init_db()
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(status_code=400, content={"error": "Invalid request body"})
+
+
 def row_to_task(row):
     return {"id": row["id"], "title": row["title"], "done": bool(row["done"])}
+
+
+def get_task_row(task_id: int):
+    with get_connection() as connection:
+        return connection.execute(
+            "SELECT * FROM tasks WHERE id = ?", (task_id,)
+        ).fetchone()
 
 
 @app.get("/")
@@ -68,10 +82,7 @@ def list_tasks():
 
 @app.get("/tasks/{task_id}", response_model=Task)
 def get_task(task_id: int):
-    with get_connection() as connection:
-        row = connection.execute(
-            "SELECT * FROM tasks WHERE id = ?", (task_id,)
-        ).fetchone()
+    row = get_task_row(task_id)
     if row is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return row_to_task(row)
@@ -95,8 +106,27 @@ def create_task(task_input: TaskInput):
 
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: int, task_input: TaskInput):
-    raise NotImplementedError("Stage 3: database update comes next")
+    title = task_input.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="title must not be empty")
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "UPDATE tasks SET title = ?, done = ? WHERE id = ?",
+            (title, int(task_input.done), task_id),
+        )
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Task not found")
+        connection.commit()
+        row = connection.execute(
+            "SELECT * FROM tasks WHERE id = ?", (task_id,)
+        ).fetchone()
+    return row_to_task(row)
 
 @app.delete("/tasks/{task_id}", status_code=204)
 def delete_task(task_id: int):
-    raise NotImplementedError("Stage 3: database delete comes next")
+    with get_connection() as connection:
+        cursor = connection.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Task not found")
+        connection.commit()
+    return None
