@@ -1,0 +1,7 @@
+Stage 2 checkpoint
+
+curl -i http://localhost:8000/tasks
+curl -i http://localhost:8000/tasks/999
+
+Expected: 200 with rows from Postgres, then 404 with a task-not-found JSON error.
+The repository uses parameterized queries with %s placeholders.

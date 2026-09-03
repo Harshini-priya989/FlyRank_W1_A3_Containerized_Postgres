@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 import repository
@@ -34,6 +34,14 @@ def health():
     return {"status": "ok"}
 
 
-@app.get("/tasks")
+@app.get("/tasks", response_model=list[Task])
 def list_tasks():
-    return []
+    return repository.list_tasks()
+
+
+@app.get("/tasks/{task_id}", response_model=Task)
+def get_task(task_id: int):
+    task = repository.get_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task

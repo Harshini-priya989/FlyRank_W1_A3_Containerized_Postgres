@@ -1,5 +1,6 @@
 import os
 import time
+from typing import Any
 
 import psycopg
 from dotenv import load_dotenv
@@ -31,15 +32,13 @@ def connect_with_retry(retries: int = 30, delay: float = 1.0):
 def init_db() -> None:
     with connect_with_retry() as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                """
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS tasks (
                     id SERIAL PRIMARY KEY,
                     title TEXT NOT NULL,
                     done BOOLEAN NOT NULL DEFAULT FALSE
                 )
-                """
-            )
+            """)
             cur.execute("SELECT COUNT(*) FROM tasks")
             if cur.fetchone()[0] == 0:
                 cur.executemany(
@@ -47,3 +46,18 @@ def init_db() -> None:
                     SEED_TASKS,
                 )
         conn.commit()
+
+
+def list_tasks() -> list[dict[str, Any]]:
+    with connect_with_retry() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, title, done FROM tasks ORDER BY id")
+            return [dict(id=r[0], title=r[1], done=r[2]) for r in cur.fetchall()]
+
+
+def get_task(task_id: int) -> dict[str, Any] | None:
+    with connect_with_retry() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, title, done FROM tasks WHERE id = %s", (task_id,))
+            row = cur.fetchone()
+            return None if row is None else dict(id=row[0], title=row[1], done=row[2])
