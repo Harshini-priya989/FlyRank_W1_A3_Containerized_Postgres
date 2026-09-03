@@ -3,10 +3,12 @@ from pydantic import BaseModel
 
 app = FastAPI(title="Task API", version="1.0")
 
-class Task(BaseModel):
-    id: int
+class TaskInput(BaseModel):
     title: str
-    done: bool
+
+class Task(TaskInput):
+    id: int
+    done: bool = False
 
 tasks = [
     Task(id=1, title="Learn FastAPI", done=False),
@@ -31,4 +33,14 @@ def get_task(task_id: int):
     task = next((t for t in tasks if t.id == task_id), None)
     if task is None:
         raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    return task
+
+@app.post("/tasks", response_model=Task, status_code=201)
+def create_task(task_input: TaskInput):
+    title = task_input.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="title must not be empty")
+    next_id = max((task.id for task in tasks), default=0) + 1
+    task = Task(id=next_id, title=title)
+    tasks.append(task)
     return task
