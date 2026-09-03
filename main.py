@@ -48,15 +48,9 @@ def startup():
     init_db()
 
 
-# A1 endpoints remain unchanged here; the storage migration happens in later stages.
-tasks = [
-    Task(id=1, title="Learn FastAPI", done=False),
-    Task(id=2, title="Build CRUD endpoints", done=False),
-    Task(id=3, title="Test with Swagger", done=False),
-]
+def row_to_task(row):
+    return {"id": row["id"], "title": row["title"], "done": bool(row["done"])}
 
-def find_task(task_id: int):
-    return next((t for t in tasks if t.id == task_id), None)
 
 @app.get("/")
 def root():
@@ -68,40 +62,31 @@ def health():
 
 @app.get("/tasks", response_model=list[Task])
 def list_tasks():
-    return tasks
+    with get_connection() as connection:
+        rows = connection.execute("SELECT * FROM tasks").fetchall()
+    return [row_to_task(row) for row in rows]
 
 @app.get("/tasks/{task_id}", response_model=Task)
 def get_task(task_id: int):
-    task = find_task(task_id)
-    if task is None:
-        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
-    return task
+    with get_connection() as connection:
+        row = connection.execute(
+            "SELECT * FROM tasks WHERE id = ?", (task_id,)
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return row_to_task(row)
 
 @app.post("/tasks", response_model=Task, status_code=201)
 def create_task(task_input: TaskInput):
     title = task_input.title.strip()
     if not title:
         raise HTTPException(status_code=400, detail="title must not be empty")
-    next_id = max((task.id for task in tasks), default=0) + 1
-    task = Task(id=next_id, title=title, done=task_input.done)
-    tasks.append(task)
-    return task
+    raise NotImplementedError("Stage 2: database insert comes next")
 
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: int, task_input: TaskInput):
-    title = task_input.title.strip()
-    if not title:
-        raise HTTPException(status_code=400, detail="title must not be empty")
-    task = find_task(task_id)
-    if task is None:
-        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
-    task.title = title
-    task.done = task_input.done
-    return task
+    raise NotImplementedError("Stage 3: database update comes next")
 
 @app.delete("/tasks/{task_id}", status_code=204)
 def delete_task(task_id: int):
-    task = find_task(task_id)
-    if task is None:
-        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
-    tasks.remove(task)
+    raise NotImplementedError("Stage 3: database delete comes next")
