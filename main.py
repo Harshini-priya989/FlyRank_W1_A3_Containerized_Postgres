@@ -5,16 +5,19 @@ app = FastAPI(title="Task API", version="1.0")
 
 class TaskInput(BaseModel):
     title: str
+    done: bool = False
 
 class Task(TaskInput):
     id: int
-    done: bool = False
 
 tasks = [
     Task(id=1, title="Learn FastAPI", done=False),
     Task(id=2, title="Build CRUD endpoints", done=False),
     Task(id=3, title="Test with Swagger", done=False),
 ]
+
+def find_task(task_id: int):
+    return next((t for t in tasks if t.id == task_id), None)
 
 @app.get("/")
 def root():
@@ -30,7 +33,7 @@ def list_tasks():
 
 @app.get("/tasks/{task_id}", response_model=Task)
 def get_task(task_id: int):
-    task = next((t for t in tasks if t.id == task_id), None)
+    task = find_task(task_id)
     if task is None:
         raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
     return task
@@ -41,6 +44,25 @@ def create_task(task_input: TaskInput):
     if not title:
         raise HTTPException(status_code=400, detail="title must not be empty")
     next_id = max((task.id for task in tasks), default=0) + 1
-    task = Task(id=next_id, title=title)
+    task = Task(id=next_id, title=title, done=task_input.done)
     tasks.append(task)
     return task
+
+@app.put("/tasks/{task_id}", response_model=Task)
+def update_task(task_id: int, task_input: TaskInput):
+    title = task_input.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="title must not be empty")
+    task = find_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task.title = title
+    task.done = task_input.done
+    return task
+
+@app.delete("/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+    task = find_task(task_id)
+    if task is None:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    tasks.remove(task)
