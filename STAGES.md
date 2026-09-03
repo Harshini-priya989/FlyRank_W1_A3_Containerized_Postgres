@@ -4,5 +4,5 @@
 - Stage 1: move GET endpoints to SQLite with parameterized queries.
 - Stage 2: move POST /tasks to SQLite INSERT with validation.
 - Stage 3: move PUT and DELETE to SQLite UPDATE/DELETE with correct status codes.
-- Stage 4: document a SQL query and verify the database in DB Browser for SQLite.
-- Stage 5: update README and publish the database-backed API.
+- Stage 4: explore SQLite in DB Browser and document an example SQL query.
+- Stage 5: update README, add the DB Browser evidence, and publish.

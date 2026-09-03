@@ -1,0 +1,5 @@
+$ curl -i http://localhost:8000/tasks
+HTTP/1.1 200 OK
+content-type: application/json
+
+[{"title":"Learn FastAPI","done":false,"id":1},{"title":"Build CRUD endpoints","done":false,"id":2},{"title":"Test with Swagger","done":false,"id":3}]

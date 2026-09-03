@@ -61,10 +61,10 @@ $ curl -i http://localhost:8000/tasks
 HTTP/1.1 200 OK
 content-type: application/json
 
-[{"id":1,"title":"Learn FastAPI","done":false},
- {"id":2,"title":"Build CRUD endpoints","done":false},
- {"id":3,"title":"Test with Swagger","done":false}]
+[{"title":"Learn FastAPI","done":false,"id":1},{"title":"Build CRUD endpoints","done":false,"id":2},{"title":"Test with Swagger","done":false,"id":3}]
 ```
+
+This output was captured from the database-backed API after a clean database initialization.
 
 ## Stage 4 SQL query
 
@@ -82,4 +82,4 @@ It returns every row in the `tasks` table. The same rows should be visible throu
 
 ## Persistence check
 
-Create a task with the API, stop the server, start it again, and call `GET /tasks`. The created task should still be present because the data is stored in `tasks.db` rather than memory.
+Create a task with the API, stop the server, start it again, and call `GET /tasks`. In a local persistence check, a task titled `Survives restart` remained present after the server was restarted because the data is stored in `tasks.db` rather than memory.
