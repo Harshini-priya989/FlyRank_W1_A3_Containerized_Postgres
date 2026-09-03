@@ -81,7 +81,17 @@ def create_task(task_input: TaskInput):
     title = task_input.title.strip()
     if not title:
         raise HTTPException(status_code=400, detail="title must not be empty")
-    raise NotImplementedError("Stage 2: database insert comes next")
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
+            (title, int(task_input.done)),
+        )
+        task_id = cursor.lastrowid
+        connection.commit()
+        row = connection.execute(
+            "SELECT * FROM tasks WHERE id = ?", (task_id,)
+        ).fetchone()
+    return row_to_task(row)
 
 @app.put("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: int, task_input: TaskInput):
