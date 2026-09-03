@@ -1,0 +1,5 @@
+Example SQL used to verify the database directly:
+
+SELECT id, title, done FROM tasks ORDER BY id;
+
+The query returns every task stored in PostgreSQL, ordered by the database-generated id.
