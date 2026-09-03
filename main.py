@@ -1,7 +1,11 @@
+import sqlite3
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 app = FastAPI(title="Task API", version="1.0")
+DB_PATH = Path(__file__).resolve().parent / "tasks.db"
 
 class TaskInput(BaseModel):
     title: str
@@ -10,6 +14,41 @@ class TaskInput(BaseModel):
 class Task(TaskInput):
     id: int
 
+
+def get_connection():
+    connection = sqlite3.connect(DB_PATH)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
+def init_db():
+    with get_connection() as connection:
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                done INTEGER NOT NULL DEFAULT 0
+            )
+        """)
+        count = connection.execute("SELECT COUNT(*) FROM tasks").fetchone()[0]
+        if count == 0:
+            connection.executemany(
+                "INSERT INTO tasks (title, done) VALUES (?, ?)",
+                [
+                    ("Learn FastAPI", 0),
+                    ("Build CRUD endpoints", 0),
+                    ("Test with Swagger", 0),
+                ],
+            )
+        connection.commit()
+
+
+@app.on_event("startup")
+def startup():
+    init_db()
+
+
+# A1 endpoints remain unchanged here; the storage migration happens in later stages.
 tasks = [
     Task(id=1, title="Learn FastAPI", done=False),
     Task(id=2, title="Build CRUD endpoints", done=False),
