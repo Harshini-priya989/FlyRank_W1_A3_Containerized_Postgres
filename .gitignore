@@ -1,5 +1,8 @@
 .venv/
+venv/
 __pycache__/
-*.pyc
+*.py[cod]
 .env
-tasks.db
+node_modules/
+.pytest_cache/
+.DS_Store
