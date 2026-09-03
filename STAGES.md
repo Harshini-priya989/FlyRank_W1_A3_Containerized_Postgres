@@ -1,8 +1,11 @@
-# FlyRank Week 3 A2 — Stage Notes
+# FlyRank Week 1 A3 — Containerized Postgres
 
-- Stage 0: create SQLite database and seed exactly three tasks when empty.
-- Stage 1: move GET endpoints to SQLite with parameterized queries.
-- Stage 2: move POST /tasks to SQLite INSERT with validation.
-- Stage 3: move PUT and DELETE to SQLite UPDATE/DELETE with correct status codes.
-- Stage 4: explore SQLite in DB Browser and document an example SQL query.
-- Stage 5: update README, add the DB Browser evidence, and publish.
+This repository continues A1 (memory) and A2 (SQLite) by moving the same Task API to PostgreSQL in Docker.
+
+## Stages
+- Stage 0: Postgres in Docker + gitignore
+- Stage 1: connect via env and create table
+- Stage 2: read from Postgres
+- Stage 3: full CRUD on Postgres
+- Stage 4: docker-compose the whole stack
+- Stage 5: one-command stack + docs
