@@ -1,0 +1,9 @@
+Swagger UI checklist
+- Open http://localhost:8000/docs
+- GET /tasks
+- POST /tasks with {"title":"Test from Swagger"}
+- GET /tasks/{task_id}
+- PUT /tasks/{task_id} with {"title":"Updated from Swagger","done":true}
+- DELETE /tasks/{task_id}
+- GET /tasks to confirm deletion
+- Save the actual Swagger screenshot as docs/swagger.png
