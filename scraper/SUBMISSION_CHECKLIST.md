@@ -1,0 +1,27 @@
+# W5 A9 submission checklist
+
+- [x] Scraper folder with README, requirements, and entry file
+- [x] Target classification documents Books to Scrape sandbox
+- [x] Scope limited to first 3 catalogue pages
+- [x] Robots result documented
+- [x] Honest user-agent configured
+- [x] Timeout configured
+- [x] Cache writes HTML and reruns use cache
+- [x] Discovers 3 catalogue pages
+- [x] Discovers 60 unique book URLs
+- [x] Extracts title, product URL, price text, availability text, rating text, description, source page, fetched_at
+- [x] Normalizes numeric `price_gbp`
+- [x] Normalizes numeric `rating`
+- [x] Validates records with Pydantic
+- [x] Writes `output/books.json`
+- [x] Writes `output/errors.json`
+- [x] Writes `output/run-report.json`
+- [x] Keeps cache out of Git
+- [x] Deliberately broken URL is skipped and reported
+- [x] README includes run command
+- [x] README includes schema
+- [x] README includes politeness rules
+- [x] README includes ethics note
+- [x] README includes honest limitation
+- [x] README includes real run report
+- [x] Final output has 60 valid unique records

@@ -19,3 +19,10 @@
 - The missing URL returns 404 and is skipped without retrying.
 - `output/errors.json` records the failed page.
 - `output/run-report.json` records duration, cache hits, valid records, invalid records, and failed pages.
+
+## Stage 6: publish scraper evidence
+
+- `scraper/README.md` documents setup, run command, schema, politeness rules, ethics, limitation, and the real report.
+- Cache files are ignored by Git.
+- Sample output files are committed.
+- Final submission document is `docs/w5-final-submission.pdf`.
