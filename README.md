@@ -6,6 +6,10 @@ This project is the FlyRank Backend Track Assignment A4 continuation of the task
 
 The Week 5 A9 polite scraper submission lives in [`scraper/README.md`](scraper/README.md). It collects the first three Books to Scrape catalogue pages, validates 60 unique book records, writes `scraper/output/books.json`, and records the run in `scraper/output/run-report.json`.
 
+## Backend AI Engineering Capstone
+
+The "Your 10x Solution" capstone lives in [`capstone/README.md`](capstone/README.md). The required overview document is [`capstone/My 10x Solution - Harshini Priya.md`](capstone/My%2010x%20Solution%20-%20Harshini%20Priya.md).
+
 ## Stack
 
 - Python 3.10+
