@@ -2,6 +2,10 @@
 
 This project is the FlyRank Backend Track Assignment A4 continuation of the task API. It keeps the containerized FastAPI + PostgreSQL stack from A3 and adds Supabase Auth for signup, login, logout, protected routes, and Swagger bearer authorization.
 
+## W5 Polite Scraper
+
+The Week 5 A9 polite scraper submission lives in [`scraper/README.md`](scraper/README.md). It collects the first three Books to Scrape catalogue pages, validates 60 unique book records, writes `scraper/output/books.json`, and records the run in `scraper/output/run-report.json`.
+
 ## Stack
 
 - Python 3.10+

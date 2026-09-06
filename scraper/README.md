@@ -80,4 +80,31 @@ This scraper is intentionally scoped to the first three catalogue pages of the s
 
 ## Run Report
 
-Run `python src\main.py` to refresh this section with the latest `output/run-report.json`.
+Latest run from `output/run-report.json`:
+
+```json
+{
+  "started_at": "2026-09-06T14:25:21.563966Z",
+  "finished_at": "2026-09-06T14:25:28.673456Z",
+  "duration_seconds": 7.11,
+  "target": "https://books.toscrape.com/",
+  "robots_result": "no robots file found (status 404)",
+  "catalogue_pages": 3,
+  "discovered_urls": 60,
+  "attempted_detail_pages": 61,
+  "pages_fetched": 0,
+  "cache_hits": 63,
+  "valid_records": 60,
+  "invalid_records": 0,
+  "failed_pages": 1,
+  "failed_page_details": [
+    {
+      "url": "https://books.toscrape.com/catalogue/this-page-is-deliberately-missing/index.html",
+      "reason": "status 404"
+    }
+  ],
+  "user_agent": "FlyRankInternship-A9/1.0 (+https://github.com/Harshini-priya989/FlyRank_W1_A3_Containerized_Postgres)",
+  "timeout_seconds": 8,
+  "delay_seconds": 0.55
+}
+```
