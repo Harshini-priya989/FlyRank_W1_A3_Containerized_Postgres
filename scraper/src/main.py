@@ -56,7 +56,7 @@ def now_utc() -> str:
 
 def cache_path(url: str) -> Path:
     parsed = urlparse(url)
-    readable = parsed.path.strip("/").replace("/", "__") or "index"
+    readable = re.sub(r"[^a-zA-Z0-9_-]+", "-", parsed.path.strip("/") or "index")[:48]
     digest = hashlib.sha1(url.encode("utf-8")).hexdigest()[:10]
     return CACHE_DIR / f"{readable}-{digest}.html"
 
