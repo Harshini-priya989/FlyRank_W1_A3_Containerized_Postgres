@@ -1,41 +1,119 @@
-# FlyRank Task API — Containerized Postgres (A3)
+# FlyRank Task API - Auth + Containerized Postgres
 
-This project is the Week 1 Assignment A3 continuation of the same Task CRUD API from A1/A2. The API now stores tasks in PostgreSQL running in Docker, and the API plus database can be started together with one command.
+This project is the FlyRank Backend Track Assignment A4 continuation of the task API. It keeps the containerized FastAPI + PostgreSQL stack from A3 and adds Supabase Auth for signup, login, logout, protected routes, and Swagger bearer authorization.
 
 ## Stack
+
 - Python 3.10+
 - FastAPI
+- Supabase Auth
 - psycopg 3
-- PostgreSQL (official Docker image)
+- PostgreSQL 16
 - Docker + Docker Compose
 
 ## Configuration
-Copy `.env.example` to `.env` and keep `.env` local. The committed `.env.example` shows the required variables without exposing a secret.
+
+Copy `.env.example` to `.env` and keep `.env` local:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-For the Compose stack, the API connects to the database by the Compose service name `db`, not `localhost`.
+Set these values in `.env`:
 
-## Run everything
+```text
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=dev
+POSTGRES_DB=tasks
+DATABASE_URL=postgresql://postgres:dev@localhost:5432/tasks
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_KEY=your_supabase_anon_key
+```
 
-```bash
+Get `SUPABASE_URL` and `SUPABASE_KEY` from Supabase Dashboard -> Project Settings -> API. Use the anon/public key only. Do not use the `service_role` key.
+
+For this practice assignment, turn off email confirmation in Supabase: Authentication -> Sign In / Providers -> Email -> Confirm email off.
+
+## Run Everything
+
+```powershell
 docker compose up --build
 ```
 
-API: http://localhost:8000  
+API: http://localhost:8000
+
 Swagger UI: http://localhost:8000/docs
 
-Stop the stack with:
+Stop the stack:
 
-```bash
+```powershell
 docker compose down
 ```
 
-Start it again with `docker compose up --build`. The named volume keeps PostgreSQL rows across the restart.
+## Auth Endpoints
 
-## Endpoints
+| Method | Path | Auth required | Purpose | Success / Error |
+|---|---|---:|---|---|
+| POST | `/auth/signup` | No | Create a Supabase user | 201 / 400 |
+| POST | `/auth/login` | No | Log in and return access + refresh tokens | 200 / 400 / 401 |
+| POST | `/auth/logout` | Yes | Log out authenticated user | 204 / 401 |
+| GET | `/public/info` | No | Public test route | 200 |
+| GET | `/protected/profile` | Yes | Return verified user profile | 200 / 401 |
+| GET | `/protected/dashboard` | Yes | Second protected route using the same auth dependency | 200 / 401 |
+
+Protected routes require:
+
+```text
+Authorization: Bearer <access_token>
+```
+
+## Auth curl Checks
+
+Signup:
+
+```powershell
+curl -i -X POST http://localhost:8000/auth/signup -H "Content-Type: application/json" -d "{\"email\":\"test@example.com\",\"password\":\"password123\"}"
+```
+
+Login:
+
+```powershell
+curl -i -X POST http://localhost:8000/auth/login -H "Content-Type: application/json" -d "{\"email\":\"test@example.com\",\"password\":\"password123\"}"
+```
+
+Protected profile:
+
+```powershell
+curl -i http://localhost:8000/protected/profile -H "Authorization: Bearer PASTE_ACCESS_TOKEN_HERE"
+```
+
+Missing token check:
+
+```powershell
+curl -i http://localhost:8000/protected/profile
+```
+
+Expected result: `401` with JSON error.
+
+## Swagger UI
+
+FastAPI serves Swagger at:
+
+```text
+http://localhost:8000/docs
+```
+
+Protected routes use FastAPI's `HTTPBearer` security scheme, so Swagger shows an Authorize padlock. Log in, copy the `access_token`, click Authorize, paste the token, then run `GET /protected/profile`.
+
+Submission evidence: save a screenshot of Swagger with protected-route padlocks as:
+
+```text
+docs/swagger-auth.png
+```
+
+## Existing Task API
+
+The A3 task API still runs against PostgreSQL.
 
 | Method | Path | Purpose | Success / Error |
 |---|---|---|---|
@@ -47,64 +125,27 @@ Start it again with `docker compose up --build`. The named volume keeps PostgreS
 | PUT | `/tasks/{task_id}` | Update task | 200 / 400 / 404 |
 | DELETE | `/tasks/{task_id}` | Delete task | 204 / 404 |
 
-## Database
+The `tasks` table is created automatically on startup and seeded only when empty.
 
-The `tasks` table is created automatically on application startup if it does not exist:
+## Security Notes
 
-```sql
-CREATE TABLE IF NOT EXISTS tasks (
-    id SERIAL PRIMARY KEY,
-    title TEXT NOT NULL,
-    done BOOLEAN NOT NULL DEFAULT FALSE
-);
-```
+- `.env` is ignored by Git.
+- `.env.example` is committed with placeholders only.
+- Passwords are never stored or hashed by this API; Supabase Auth handles credentials.
+- Protected routes verify the JWT with `supabase.auth.get_user(token)`.
+- The app uses the Supabase anon key, never the `service_role` key.
 
-Three example tasks are inserted only when the table is empty. Restarting the API does not duplicate the seed rows.
+## Submission Checklist
 
-All user-controlled values are passed through parameterized psycopg queries using `%s` placeholders.
-
-## Example curl
-
-```bash
-curl -i http://localhost:8000/tasks
-```
-
-Example successful response:
-
-```text
-HTTP/1.1 200 OK
-content-type: application/json
-
-[{"id":1,"title":"Learn FastAPI","done":false}, ...]
-```
-
-## Database verification
-
-The Postgres database can be inspected directly with:
-
-```bash
-docker exec -it taskdb psql -U postgres -d tasks
-```
-
-Then:
-
-```sql
-\dt
-SELECT * FROM tasks;
-```
-
-The same rows should be visible through `GET /tasks`.
-
-**Submission evidence:** add a genuine screenshot of the `tasks` table from `psql`, DBeaver, pgAdmin, or TablePlus at `docs/postgres-data.png` after running the stack locally.
-
-## Persistence check
-
-1. Run `docker compose up --build`.
-2. Create a task.
-3. Run `docker compose down`.
-4. Run `docker compose up --build` again.
-5. Call `GET /tasks` and confirm the created task is still present.
-
-## Security note
-
-`.env` is ignored by Git. Commit `.env.example`, never the real `.env` file or a real database password.
+- Public GitHub repo pushed.
+- At least six assignment-stage commits in `git log`.
+- `.env` not committed.
+- `.env.example` committed.
+- `POST /auth/signup` works.
+- `POST /auth/login` returns an access token.
+- `GET /protected/profile` rejects missing or bad tokens with `401`.
+- `GET /protected/profile` accepts a valid Supabase access token.
+- `POST /auth/logout` is protected and returns `204`.
+- `GET /protected/dashboard` reuses the same auth dependency.
+- Swagger UI shows bearer auth padlocks.
+- `docs/swagger-auth.png` added before final submission.
