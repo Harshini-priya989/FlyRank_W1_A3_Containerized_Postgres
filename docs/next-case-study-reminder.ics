@@ -1,0 +1,13 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//FlyRank Portfolio Reminder//EN
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:next-case-study-20260913-harshini-priya@flyrank
+DTSTAMP:20260906T160000Z
+DTSTART:20260913T033000Z
+DTEND:20260913T040000Z
+SUMMARY:Add next portfolio case study - Book Insights API
+DESCRIPTION:Open docs/portfolio-framed-cases.md and add the next case using the three beats: problem, what I did, what came of it. Keep Claude Project voice card: clear, honest, practical, warm, no buzzwords.
+END:VEVENT
+END:VCALENDAR
