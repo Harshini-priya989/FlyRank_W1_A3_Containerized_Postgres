@@ -12,3 +12,10 @@
 - `rating_text` is converted into numeric `rating`.
 - Pydantic validates each record before it is written.
 - `output/books.json` contains exactly 60 records after repeated runs.
+
+## Stage 5: survive failures, report the run
+
+- A deliberately missing book URL is added during the default run.
+- The missing URL returns 404 and is skipped without retrying.
+- `output/errors.json` records the failed page.
+- `output/run-report.json` records duration, cache hits, valid records, invalid records, and failed pages.
